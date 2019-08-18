@@ -1,0 +1,56 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+using CapaDatos;
+using System.Data;
+
+namespace CapaNegocios
+{
+    public class NBarrio
+    {
+        public static string Insert(int codigo,string nombre)
+        {
+            DBarrio Obj = new DBarrio();
+            Obj.Nombre = nombre;
+            Obj.Codigo = codigo;
+            return Obj.Insert(Obj);
+        }
+
+        public static string Update(int codigo,string nombre)
+        {
+            DBarrio barrio = new DBarrio();
+            barrio.Nombre = nombre;
+            barrio.Codigo = codigo;
+            return barrio.Update(barrio);
+        }
+
+        public static string Delete(int codigo)
+        {
+            DBarrio barrio = new DBarrio();
+            barrio.Codigo = codigo;
+            return barrio.Delete(barrio);
+        }
+
+        public static DataTable Show()
+        {
+            DBarrio barrio = new DBarrio();
+            return barrio.Show();
+        }
+
+        public static DataTable ShowPerName(string nombre)
+        {
+            DBarrio barrio = new DBarrio();
+            barrio.Nombre = nombre;
+            return barrio.ShowPerName(barrio);
+        }
+
+        public static int GetMaxId()
+        {
+            DBarrio barrio = new DBarrio();
+            return barrio.GetMaxId();
+        }
+    }
+}

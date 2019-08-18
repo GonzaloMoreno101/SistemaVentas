@@ -1,0 +1,190 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+using CapaNegocios;
+using System.Windows.Forms.DataVisualization.Charting;
+using System.Collections;
+
+namespace CapaPresentacion
+{
+    public partial class frmDashBoard : Form
+    {
+        public bool isDashboard;
+        
+        public frmDashBoard()
+        {
+            
+            InitializeComponent();
+            
+        }
+
+        private void PcbClose_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void PcbMinimize_Click(object sender, EventArgs e)
+        {
+            this.WindowState = FormWindowState.Minimized;
+        }
+
+        private void FrmDashBoard_Load(object sender, EventArgs e)
+        {
+            this.Size = Screen.PrimaryScreen.WorkingArea.Size;
+            this.Location = Screen.PrimaryScreen.WorkingArea.Location;
+            string fechastring = DateTime.Today.ToLongDateString().ToUpper();
+            string mes = fechastring.Split().ToList()[3];
+            LblMes.Text = mes;
+            lblAño.Text = DateTime.Today.Year.ToString();
+            LoadDash();
+            LoadChart();
+            
+
+
+        }
+        public void LoadDash()
+        {
+           
+            Tuple<int, int, double, int, int> tupla;
+            tupla = NDashBoard.DashBoard();
+            lblCantVendedores.Text = tupla.Item4.ToString();
+            lblCantCli.Text = tupla.Item5.ToString();
+            lblCantProd.Text = tupla.Item2.ToString();
+            lblCantVentas.Text = tupla.Item1.ToString();
+
+        }
+        public void LoadChart()
+        {
+            Tuple<ArrayList, ArrayList> bestSellers = NDashBoard.GetBestSellers();
+            GetChart(bestSellers.Item1, bestSellers.Item2, chart1);
+            Tuple<ArrayList, ArrayList> SellsPerMonth = NDashBoard.GetSellPerMonth();
+            GetChart(SellsPerMonth.Item1, SellsPerMonth.Item2, chart2);
+        }
+        private void GetChart(ArrayList campoX, ArrayList campoY, Chart ch)
+        {
+            ch.Series[0].Points.DataBindXY(campoX, campoY);
+            
+        }
+
+       
+
+        private void Panel5_MouseEnter(object sender, EventArgs e)
+        {
+            panel5.BackColor = Color.FromArgb(165, 21, 80);
+            
+        }
+
+        private void Panel5_MouseLeave(object sender, EventArgs e)
+        {
+            panel5.BackColor = Color.FromArgb(39, 41, 61);
+        }
+
+        private void Panel5_Click(object sender, EventArgs e)
+        {
+            frmCliente cli = new frmCliente();
+            AddOwnedForm(cli);
+            cli.Show();
+
+            this.Enabled = false;
+        }
+
+        private void Panel1_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void Panel1_Click(object sender, EventArgs e)
+        {
+            frmFacturas fac = new frmFacturas();
+            AddOwnedForm(fac);
+            fac.Show();
+            this.Enabled = false;
+        }
+
+        private void Panel1_MouseEnter(object sender, EventArgs e)
+        {
+            panel1.BackColor = Color.FromArgb(165, 21, 80);
+        }
+
+        private void Panel1_MouseLeave(object sender, EventArgs e)
+        {
+            panel1.BackColor = Color.FromArgb(39, 41, 61);
+        }
+
+        private void Panel4_Click(object sender, EventArgs e)
+        {
+            frmProductos prod = new frmProductos();
+            AddOwnedForm(prod);
+            prod.Show();
+            isDashboard = true;
+            this.Enabled = false;
+        }
+
+        private void Panel4_MouseEnter(object sender, EventArgs e)
+        {
+            panel4.BackColor = Color.FromArgb(165, 21, 80);
+        }
+
+        private void Panel4_MouseLeave(object sender, EventArgs e)
+        {
+            panel4.BackColor = Color.FromArgb(39, 41, 61);
+        }
+
+        private void PictureBox6_Click(object sender, EventArgs e)
+        {
+            this.WindowState = FormWindowState.Normal;
+        }
+
+        private void Panel3_MouseClick(object sender, MouseEventArgs e)
+        {
+            frmVendedores vend = new frmVendedores();
+            AddOwnedForm(vend);
+            vend.Show();
+            this.Enabled = false;
+        }
+
+        private void Panel3_MouseHover(object sender, EventArgs e)
+        {
+           
+        }
+
+        private void Panel3_MouseEnter(object sender, EventArgs e)
+        {
+            panel3.BackColor = Color.FromArgb(165, 21, 80);
+        }
+
+        private void Panel3_MouseLeave(object sender, EventArgs e)
+        {
+            panel3.BackColor = Color.FromArgb(39, 41, 61);
+        }
+
+        private void Panel6_MouseEnter(object sender, EventArgs e)
+        {
+            panel6.BackColor = Color.FromArgb(165, 21, 80);
+        }
+    
+
+        private void Panel6_MouseLeave(object sender, EventArgs e)
+        {
+            panel6.BackColor = Color.FromArgb(39, 41, 61);
+        }
+
+        private void Panel2_MouseEnter(object sender, EventArgs e)
+        {
+            panel2.BackColor = Color.FromArgb(165, 21, 80);
+        }
+
+        private void Panel2_MouseLeave(object sender, EventArgs e)
+        {
+            panel2.BackColor = Color.FromArgb(39, 41, 61);
+        }
+    }
+    
+}

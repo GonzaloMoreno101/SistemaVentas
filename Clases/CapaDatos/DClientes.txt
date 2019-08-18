@@ -1,0 +1,313 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+using System.Data;
+using System.Data.SqlClient;
+using System.Windows.Forms;
+
+namespace CapaDatos
+{
+    public class Cliente:Persona
+    {
+        int codCliente;
+
+        public int CodCliente { get => codCliente; set => codCliente = value; }
+
+        public Cliente():base()
+        {
+            CodCliente = 0;
+        }
+
+        public Cliente(int codCliente,string nombre,string apellido,string calle,int altura,int codBarrio,Int64 nroTel,string email):base(nombre,apellido,calle,altura,codBarrio
+            , nroTel, email)
+        {
+            this.CodCliente = codCliente;
+        }
+
+        public string Insert(Cliente cliente)
+        {
+            SqlConnection conexion = new SqlConnection();
+            conexion.ConnectionString = Conexion.cadenaConexion;
+            string rpta;
+            try
+            {
+                conexion.Open();
+                SqlCommand comando = new SqlCommand();
+                comando.Connection = conexion;
+                comando.CommandType = CommandType.StoredProcedure;
+                comando.CommandText = "SP_INSERT_CLIENTE";
+
+                SqlParameter parIdCli = new SqlParameter();
+                parIdCli.Direction = ParameterDirection.Output;
+                parIdCli.ParameterName = "@COD";
+                parIdCli.SqlDbType = SqlDbType.Int;
+
+                SqlParameter parNom = new SqlParameter();
+                parNom.ParameterName = "@NOM";
+                parNom.SqlDbType = SqlDbType.VarChar;
+                parNom.Size = 50;
+                parNom.Value = cliente.Nombre;
+
+                SqlParameter parApe = new SqlParameter();
+                parApe.ParameterName = "@APE";
+                parApe.SqlDbType = SqlDbType.VarChar;
+                parApe.Size = 50;
+                parApe.Value = cliente.Apellido;
+
+                SqlParameter parCalle = new SqlParameter();
+                parCalle.ParameterName = "@CALLE";
+                parCalle.SqlDbType = SqlDbType.NVarChar;
+                parCalle.Size = 50;
+                parCalle.Value = cliente.Calle;
+
+                SqlParameter parAltura = new SqlParameter();
+                parAltura.ParameterName = "@ALTURA";
+                parAltura.SqlDbType = SqlDbType.Int;
+                parAltura.Value = cliente.Altura;
+
+                SqlParameter parCodBarrio = new SqlParameter();
+                parCodBarrio.ParameterName = "@COD_BARRIO";
+                parCodBarrio.SqlDbType = SqlDbType.Int;
+                parCodBarrio.Value = cliente.CodBarrio;
+
+                SqlParameter parTelefono = new SqlParameter();
+                parTelefono.ParameterName = "@NRO";
+                parTelefono.SqlDbType = SqlDbType.BigInt;
+                parTelefono.Value = cliente.NroTelefono;
+
+                SqlParameter parEmail = new SqlParameter();
+                parEmail.ParameterName = "@EMAIL";
+                parEmail.SqlDbType = SqlDbType.NVarChar;
+                parEmail.Size = 50;
+                parEmail.Value = cliente.Email;
+
+                comando.Parameters.Add(parIdCli);
+                comando.Parameters.Add(parNom);
+                comando.Parameters.Add(parApe);
+                comando.Parameters.Add(parCalle);
+                comando.Parameters.Add(parAltura);
+                comando.Parameters.Add(parCodBarrio);
+                comando.Parameters.Add(parTelefono);
+                comando.Parameters.Add(parEmail);
+                rpta = comando.ExecuteNonQuery() == 1 ? "OK" : "ERROR DE REGISTRO";
+
+            }
+            catch (Exception e)
+            {
+                rpta = e.Message;
+            }
+            finally
+            {
+                if (conexion.State == ConnectionState.Open) conexion.Close();
+            }
+            return rpta;
+        }
+
+        public string Update(Cliente cliente)
+        {
+            SqlConnection conexion = new SqlConnection();
+            conexion.ConnectionString = Conexion.cadenaConexion;
+            string rpta;
+            try
+            {
+                conexion.Open();
+                SqlCommand comando = new SqlCommand();
+                comando.Connection = conexion;
+                comando.CommandType = CommandType.StoredProcedure;
+                comando.CommandText = "UPDATE_CLIENTE";
+
+                SqlParameter parIdCli = new SqlParameter();
+                parIdCli.Value = cliente.codCliente;
+                parIdCli.ParameterName = "@COD";
+                parIdCli.SqlDbType = SqlDbType.Int;
+
+                SqlParameter parNom = new SqlParameter();
+                parNom.ParameterName = "@NOM";
+                parNom.SqlDbType = SqlDbType.VarChar;
+                parNom.Size = 50;
+                parNom.Value = cliente.Nombre;
+
+                SqlParameter parApe = new SqlParameter();
+                parApe.ParameterName = "@APE";
+                parApe.SqlDbType = SqlDbType.VarChar;
+                parApe.Size = 50;
+                parApe.Value = cliente.Apellido;
+
+                SqlParameter parCalle = new SqlParameter();
+                parCalle.ParameterName = "@CALLE";
+                parCalle.SqlDbType = SqlDbType.NVarChar;
+                parCalle.Size = 50;
+                parCalle.Value = cliente.Calle;
+
+                SqlParameter parAltura = new SqlParameter();
+                parAltura.ParameterName = "@ALTURA";
+                parAltura.SqlDbType = SqlDbType.Int;
+                parAltura.Value = cliente.Altura;
+
+                SqlParameter parCodBarrio = new SqlParameter();
+                parCodBarrio.ParameterName = "@COD_BARRIO";
+                parCodBarrio.SqlDbType = SqlDbType.Int;
+                parCodBarrio.Value = cliente.CodBarrio;
+
+                SqlParameter parTelefono = new SqlParameter();
+                parTelefono.ParameterName = "@NRO";
+                parTelefono.SqlDbType = SqlDbType.BigInt;
+                parTelefono.Value = cliente.NroTelefono;
+
+                SqlParameter parEmail = new SqlParameter();
+                parEmail.ParameterName = "@EMAIL";
+                parEmail.SqlDbType = SqlDbType.NVarChar;
+                parEmail.Size = 50;
+                parEmail.Value = cliente.Email;
+
+                comando.Parameters.Add(parIdCli);
+                comando.Parameters.Add(parNom);
+                comando.Parameters.Add(parApe);
+                comando.Parameters.Add(parCalle);
+                comando.Parameters.Add(parAltura);
+                comando.Parameters.Add(parCodBarrio);
+                comando.Parameters.Add(parTelefono);
+                comando.Parameters.Add(parEmail);
+                rpta = comando.ExecuteNonQuery() == 1 ? "OK" : "ERROR DE REGISTRO";
+
+            }
+            catch (Exception e)
+            {
+                rpta = e.Message;
+            }
+            finally
+            {
+                if (conexion.State == ConnectionState.Open) conexion.Close();
+            }
+            return rpta;
+        }
+
+        public string Delete(Cliente cliente)
+        {
+            SqlConnection conexion = new SqlConnection();
+            conexion.ConnectionString = Conexion.cadenaConexion;
+            string rpta;
+            try
+            {
+                conexion.Open();
+                SqlCommand comando = new SqlCommand();
+                comando.Connection = conexion;
+                comando.CommandType = CommandType.StoredProcedure;
+                comando.CommandText = "SP_DELETE_CLIENTES";
+
+                SqlParameter parIdCli = new SqlParameter();
+                parIdCli.Value = cliente.codCliente;
+                parIdCli.ParameterName = "@COD";
+                parIdCli.SqlDbType = SqlDbType.Int;
+
+                comando.Parameters.Add(parIdCli);
+      
+                rpta = comando.ExecuteNonQuery() == 1 ? "OK" : "ERROR DE REGISTRO";
+
+            }
+            catch (Exception e)
+            {
+                rpta = e.Message;
+            }
+            finally
+            {
+                if (conexion.State == ConnectionState.Open) conexion.Close();
+            }
+            return rpta;
+        }
+
+        public DataTable Show()
+        {
+            DataTable tabla = new DataTable();
+            SqlConnection conexion = new SqlConnection();
+            conexion.ConnectionString = Conexion.cadenaConexion;
+            try
+            {
+                SqlCommand comando = new SqlCommand();
+                comando.Connection = conexion;
+                comando.CommandType = CommandType.StoredProcedure;
+                comando.CommandText = "SP_SHOW_CLIENTES";
+
+                SqlDataAdapter adaptador = new SqlDataAdapter(comando);
+                adaptador.Fill(tabla);
+            }
+            catch (Exception)
+            {
+
+                tabla = null;
+            }
+            finally
+            {
+                if (conexion.State == ConnectionState.Open) conexion.Close();
+            }
+            return tabla;
+        }
+
+        public DataTable ShowPerName(Cliente cliente)
+        {
+            DataTable tabla = new DataTable();
+            SqlConnection conexion = new SqlConnection();
+            conexion.ConnectionString = Conexion.cadenaConexion;
+            try
+            {
+                SqlCommand comando = new SqlCommand();
+                comando.Connection = conexion;
+                comando.CommandType = CommandType.StoredProcedure;
+                comando.CommandText = "SP_SHOW_CLIENTES_PER_NOMBRE";
+
+                SqlParameter parNombre = new SqlParameter();
+                parNombre.ParameterName = "@NOM";
+                parNombre.SqlDbType = SqlDbType.VarChar;
+                parNombre.Size = 50;
+                parNombre.Value = cliente.Nombre;
+
+                comando.Parameters.Add(parNombre);
+                SqlDataAdapter adaptador = new SqlDataAdapter(comando);
+                adaptador.Fill(tabla);
+            }
+            catch (Exception)
+            {
+                
+                tabla = null;
+            }
+            finally
+            {
+                if (conexion.State == ConnectionState.Open) conexion.Close();
+            }
+            return tabla;
+        }
+
+        public int GetMaxIdentity()
+        {
+            int valor;
+            SqlConnection conexion = new SqlConnection();
+            conexion.ConnectionString = Conexion.cadenaConexion;
+            try
+            {
+                conexion.Open();
+                SqlCommand comando = new SqlCommand();
+                comando.Connection = conexion;
+                comando.CommandText = "MAXID";
+                comando.CommandType = CommandType.StoredProcedure;
+                valor = Convert.ToInt32(comando.ExecuteScalar());
+
+            }
+            catch (Exception )
+            {
+
+                valor = 0;
+            }
+            finally
+            {
+                if (conexion.State == ConnectionState.Open) conexion.Close();
+            }
+            return valor;
+
+
+        }
+
+    }
+}

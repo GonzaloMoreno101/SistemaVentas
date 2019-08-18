@@ -1,0 +1,321 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+using CapaNegocios;
+
+namespace CapaPresentacion
+{
+    public partial class frmCliente : Form
+    {
+        bool isNuevo = false;
+        bool isEditar = false;
+        public frmCliente()
+        {
+            InitializeComponent();
+        }
+
+        private void HabilitarBotones()
+        {
+            if (isNuevo || isEditar)
+            {
+                HabilitarControles(true);
+                btnNuevo.Enabled = btnEditar.Enabled = false;
+                btnRegistrar.Enabled = btnCancelar.Enabled = btnAgregarBarrios.Enabled =  true;
+            }
+            else
+            {
+                HabilitarControles(false);
+                btnNuevo.Enabled = btnEditar.Enabled = true;
+                btnRegistrar.Enabled = btnCancelar.Enabled = btnAgregarBarrios.Enabled = false;
+            }
+           
+        }
+
+        private void GetMaxId()
+        {
+            txtCodigo.Text = NCliente.GetMaxIdentity().ToString();
+        }
+
+        private void HabilitarControles(bool valor)
+        {
+            for (int i = 0; i < groupBox1.Controls.Count; i++)
+            {
+                if(groupBox1.Controls[i] is TextBox ||groupBox1.Controls[i] is ComboBox)
+                {
+                    groupBox1.Controls[i].Enabled = valor;
+                }
+            }
+            txtCodigo.Enabled = false;
+        }
+
+        private void Limpiar()
+        {
+           
+            for (int i = 0; i < groupBox1.Controls.Count; i++)
+            {
+                if (groupBox1.Controls[i] is TextBox)
+                    groupBox1.Controls[i].Text = string.Empty;
+                
+            }
+            GetMaxId();
+        }
+
+        private void ShowCli()
+        {
+            dgvClientes.DataSource = NCliente.Show();
+            dgvClientes.Columns[6].Visible = false;
+            dgvClientes.Columns[1].Visible = false;
+            dgvClientes.Columns[0].Visible = false;
+        }
+
+        private void TextBox4_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void FrmCliente_Load(object sender, EventArgs e)
+        {
+            ShowCli();
+            LlenarCombo();
+            HabilitarBotones();
+            Limpiar();
+            GetMaxId();
+        }
+
+        private void PcbClose_Click(object sender, EventArgs e)
+       {
+            this.Close();
+        }
+
+        private void PcbMinimize_Click(object sender, EventArgs e)
+        {
+            this.WindowState = FormWindowState.Minimized;
+        }
+
+        private void Button1_Click(object sender, EventArgs e)
+        {
+            dgvClientes.DataSource = NCliente.ShowPerName(txtBuscar.Text);
+            
+        }
+
+        private void DgvClientes_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            isEditar = isNuevo = false;
+            HabilitarBotones();
+            txtCodigo.Text = dgvClientes.CurrentRow.Cells[1].Value.ToString();
+            txtNomCli.Text = dgvClientes.CurrentRow.Cells[2].Value.ToString();
+            txtApe.Text = dgvClientes.CurrentRow.Cells[3].Value.ToString();
+            txtCalle.Text = dgvClientes.CurrentRow.Cells[4].Value.ToString();
+            txtAltura.Text = dgvClientes.CurrentRow.Cells[5].Value.ToString();
+            cboBarrios.SelectedValue = dgvClientes.CurrentRow.Cells[6].Value;
+            txtTelefono.Text = dgvClientes.CurrentRow.Cells[8].Value.ToString();
+            txtEmail.Text = dgvClientes.CurrentRow.Cells[9].Value.ToString();
+            tabControl1.SelectedTab = tabPage2;
+
+        }
+        public void LlenarCombo()
+        {
+            cboBarrios.DataSource = NBarrio.Show();
+            cboBarrios.DisplayMember = "BARRIO";
+            cboBarrios.ValueMember = "CODIGO";
+            
+        }
+
+        private void TxtBuscar_TextChanged(object sender, EventArgs e)
+        {
+            dgvClientes.DataSource = NCliente.ShowPerName(txtBuscar.Text);
+        }
+
+        private void DgvClientes_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            
+        }
+
+        private void BtnEditar_Click(object sender, EventArgs e)
+        {
+            if (!txtNomCli.Text.Equals(string.Empty))
+            {
+                isEditar = true;
+                HabilitarBotones();
+            }
+            else
+            {
+                MensajeError("Debe selecciona el registro a editar");
+            }
+            
+        }
+
+        private void BtnNuevo_Click(object sender, EventArgs e)
+        {
+            isNuevo = true;
+            isEditar = false;
+            HabilitarBotones();
+            Limpiar();
+            GetMaxId();
+        }
+
+        private void BtnCancelar_Click(object sender, EventArgs e)
+        {
+            isNuevo = false;
+            isEditar = false;
+            HabilitarBotones();
+            if (!cboBarrios.Text.Equals(string.Empty))
+            {
+                
+                Limpiar();
+                tabControl1.SelectedTab = tabPage1;
+            }
+            
+        }
+
+        public bool Validar()
+        {
+            for (int i = 0; i < groupBox1.Controls.Count; i++)
+            {
+               if( groupBox1.Controls[i] is TextBox && groupBox1.Controls[i].Text.Equals(string.Empty))
+                {
+                    
+                    groupBox1.Controls[i].Focus();
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private void MensajeError(string mensaje)
+        {
+            MessageBox.Show(mensaje, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+        private void BtnRegistrar_Click(object sender, EventArgs e)
+        {
+            string rpta;
+            if (Validar())
+            {
+                if (isNuevo)
+                {
+                    rpta = NCliente.Insert(Convert.ToInt32(txtCodigo.Text), txtNomCli.Text, txtApe.Text, txtCalle.Text, Convert.ToInt32(txtAltura.Text), Convert.ToInt32(cboBarrios.SelectedValue), Convert.ToInt64(txtTelefono.Text), txtEmail.Text);
+                
+                }
+                else
+                {
+                    rpta = NCliente.Update(Convert.ToInt32(txtCodigo.Text), txtNomCli.Text, txtApe.Text, txtCalle.Text, Convert.ToInt32(txtAltura.Text), Convert.ToInt32(cboBarrios.SelectedValue), Convert.ToInt64(txtTelefono.Text), txtEmail.Text);
+                }
+                if (rpta.Equals("OK"))
+                {
+                    if (isNuevo) MessageBox.Show("Se inserto correctamente le reigstro");
+                    else MessageBox.Show("Se actualizo correctamente el registro");
+
+                }
+                else
+                {
+                    MensajeError("Error de registro: " + rpta);
+                }
+                
+            }
+            else
+            {
+                MessageBox.Show("Faltan llenar campos");
+            }
+            isEditar = isNuevo = false;
+            HabilitarBotones();
+            
+            ShowCli();
+            
+        }
+
+        private void BunifuCheckbox1_OnChange(object sender, EventArgs e)
+        {
+            if (!bunifuCheckbox1.Checked)
+            {
+                dgvClientes.Columns[0].Visible = false;
+                dgvClientes.ReadOnly = true;
+                for (int i = 0; i < dgvClientes.RowCount; i++)
+                {
+                    dgvClientes.Rows[i].Cells[0].Value = false;
+                }
+            }
+            else
+            {
+                dgvClientes.Columns[0].Visible = true;
+                dgvClientes.ReadOnly = false;
+            }
+        }
+
+        private Tuple<bool,int> GetDelette()
+        {
+            Tuple<bool, int> tupla;
+            int contador = 0;
+            for (int i = 0; i < dgvClientes.RowCount; i++)
+            {
+                if(Convert.ToBoolean(dgvClientes.Rows[i].Cells[0].Value))
+                {
+                    contador++;
+                }
+            }
+            if (contador > 0) tupla = Tuple.Create(true,contador);
+            else tupla = Tuple.Create(false, contador);
+            return tupla;
+        }
+        private void Button2_Click(object sender, EventArgs e)
+        {
+            Tuple<bool ,int > tupla = GetDelette();
+            string rpta;
+            if (tupla.Item1)
+            {
+                DialogResult dialogo = MessageBox.Show("Seguro desea eliminar los registros seleccionados?", "Atencion", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if(dialogo == DialogResult.Yes)
+                {
+                    for (int i = 0; i < dgvClientes.RowCount; i++)
+                    {
+                        if(Convert.ToBoolean(dgvClientes.Rows[i].Cells[0].Value))
+                        {
+                            rpta = NCliente.Delete(Convert.ToInt32( dgvClientes.Rows[i].Cells[1].Value));
+                            if (!rpta.Equals("OK"))
+                            {
+                                MensajeError("Hubo un error " + rpta);
+                                bunifuCheckbox1.Checked = false;
+                                BunifuCheckbox1_OnChange(bunifuCheckbox1, e);
+                                return;
+                            }
+                        }
+                    }
+                    MessageBox.Show("Se eliminaron " + tupla.Item2);
+                    ShowCli();
+                    bunifuCheckbox1.Checked = false;
+                    BunifuCheckbox1_OnChange(bunifuCheckbox1, e);
+                    
+                }
+            }
+            else
+            {
+                MensajeError("Debe seleccionar al menos un registro");
+            }
+        }
+
+        private void Button4_Click(object sender, EventArgs e)
+        {
+            FrmBarrios barrios = new FrmBarrios();
+            AddOwnedForm(barrios);
+            this.Enabled = false;
+            barrios.Show();
+            barrios.tabControl1.SelectedTab = barrios.tabControl1.TabPages[1];
+           
+        }
+
+        private void FrmCliente_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            frmDashBoard dash = Owner as frmDashBoard;
+            dash.Enabled = true;
+            dash.LoadDash();
+            dash.LoadChart();
+        }
+    }
+}

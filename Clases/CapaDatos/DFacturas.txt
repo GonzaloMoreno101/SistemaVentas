@@ -1,0 +1,185 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+using System.Data;
+using System.Data.SqlClient;
+
+namespace CapaDatos
+{
+    public class DFacturas
+    {
+        int nroFactura;
+        DateTime fecha;
+        int cod_cliente;
+        int cod_vendedor;
+        double monto;
+
+       
+
+        public int NroFactura { get => nroFactura; set => nroFactura = value; }
+        public DateTime Fecha { get => fecha; set => fecha = value; }
+        public int Cod_cliente { get => cod_cliente; set => cod_cliente = value; }
+        public int Cod_vendedor { get => cod_vendedor; set => cod_vendedor = value; }
+        public double Monto { get => monto; set => monto = value; }
+
+        public DFacturas(int nroFactura, DateTime fecha, int cod_cliente, int cod_vendedor, double monto)
+        {
+            NroFactura = nroFactura;
+            Fecha = fecha;
+            Cod_cliente = cod_cliente;
+            Cod_vendedor = cod_vendedor;
+            Monto = monto;
+        }
+
+        public DFacturas()
+        {
+            NroFactura = 0; ;
+            Fecha = DateTime.Today; ;
+            Cod_cliente = 0;
+            Cod_vendedor = 0;
+            Monto = 0;
+        }
+
+        public string Insert(DFacturas fac)
+        {
+            string rpta;
+            SqlConnection conexion = new SqlConnection(Conexion.cadenaConexion);
+            try
+            {
+                conexion.Open();
+                SqlCommand comando = new SqlCommand("SP_INSERT_FACTURA");
+                comando.Connection = conexion;
+                comando.CommandType = CommandType.StoredProcedure;
+
+                comando.Parameters.Add("@NRO", SqlDbType.Int).Direction = ParameterDirection.Output;
+                comando.Parameters.Add("@FECHA", SqlDbType.SmallDateTime).Value = fac.Fecha;
+                comando.Parameters.Add("@COD_CLIENTE", SqlDbType.Int).Value = fac.Cod_cliente;
+                comando.Parameters.Add("@COD_VEND", SqlDbType.Int).Value = fac.Cod_vendedor;
+                comando.Parameters.Add("@MONTO", SqlDbType.Decimal).Value = fac.Monto;
+
+                rpta = comando.ExecuteNonQuery() == 1 ? "OK" : "Error al insertar";
+            }
+            catch (Exception e)
+            {
+
+                rpta = e.Message;
+            }
+            finally
+            {
+                if (conexion.State == ConnectionState.Open) conexion.Close();
+            }
+            return rpta;
+            
+        }
+
+        public DataTable Show()
+        {
+            DataTable tabla = new DataTable();
+            SqlConnection conexion = new SqlConnection(Conexion.cadenaConexion);
+            try
+            {
+                conexion.Open();
+                SqlCommand comando = new SqlCommand("SP_SHOW_FACTURA", conexion);
+                comando.CommandType = CommandType.StoredProcedure;
+                SqlDataAdapter adaptador = new SqlDataAdapter(comando);
+                adaptador.Fill(tabla);
+            }
+            catch (Exception)
+            {
+
+                tabla = null;
+            }
+            finally
+            {
+                if (conexion.State == ConnectionState.Open) conexion.Close();
+            }
+            return tabla;
+
+        }
+
+        public DataTable ShowPerNro(DFacturas fac)
+        {
+            DataTable tabla = new DataTable();
+            SqlConnection conexion = new SqlConnection(Conexion.cadenaConexion);
+            try
+            {
+                conexion.Open();
+                SqlCommand comando = new SqlCommand("SP_SHOW_FACTURA_PER_ID", conexion);
+                comando.Parameters.Add("@ID", SqlDbType.Int).Value = fac.NroFactura;
+                comando.CommandType = CommandType.StoredProcedure;
+                SqlDataAdapter adaptador = new SqlDataAdapter(comando);
+                adaptador.Fill(tabla);
+            }
+            catch (Exception)
+            {
+
+                tabla = null;
+            }
+            finally
+            {
+                if (conexion.State == ConnectionState.Open) conexion.Close();
+            }
+            return tabla;
+
+        }
+
+        public DataTable ShowPerCli(Cliente cli)
+        {
+            DataTable tabla = new DataTable();
+            SqlConnection conexion = new SqlConnection(Conexion.cadenaConexion);
+            try
+            {
+                conexion.Open();
+                SqlCommand comando = new SqlCommand("SP_SHOW_FACTURA_PER_NAME_CLIENTE", conexion);
+                comando.Parameters.Add("@NOM", SqlDbType.VarChar,size:50).Value = cli.Nombre;
+                comando.CommandType = CommandType.StoredProcedure;
+                SqlDataAdapter adaptador = new SqlDataAdapter(comando);
+                adaptador.Fill(tabla);
+            }
+            catch (Exception )
+            {
+
+                tabla = null;
+            }
+            finally
+            {
+                if (conexion.State == ConnectionState.Open) conexion.Close();
+            }
+            return tabla;
+
+        }
+
+        public DataTable ShowPerVen(DVendedor vendedor)
+        {
+            DataTable tabla = new DataTable();
+            SqlConnection conexion = new SqlConnection(Conexion.cadenaConexion);
+            try
+            {
+                conexion.Open();
+                SqlCommand comando = new SqlCommand("SP_SHOW_FACTURA_PER_NAME_VENDEDOR", conexion);
+                comando.Parameters.Add("@NOM", SqlDbType.VarChar, size: 50).Value = vendedor.Nombre;
+                comando.CommandType = CommandType.StoredProcedure;
+                SqlDataAdapter adaptador = new SqlDataAdapter(comando);
+                adaptador.Fill(tabla);
+            }
+            catch (Exception )
+            {
+
+                tabla = null;
+            }
+            finally
+            {
+                if (conexion.State == ConnectionState.Open) conexion.Close();
+            }
+            return tabla;
+
+        }
+
+
+
+
+    }
+}

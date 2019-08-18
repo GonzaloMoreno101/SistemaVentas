@@ -1,0 +1,284 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+
+using CapaNegocios;
+
+namespace CapaPresentacion
+{
+    public partial class frmVendedores : Form
+    {
+        bool isNuevo, isEditar;
+        public frmVendedores()
+        {
+            InitializeComponent();
+            
+        }
+
+        
+        private void LoadVend()
+        {
+            dgvVendedores.DataSource = NVendedor.GetShow();
+            dgvVendedores.Columns[1].Visible = false;
+            dgvVendedores.Columns[0].Visible = false;
+            dgvVendedores.Columns[7].Visible = false;
+            lblcantRegistros.Text = dgvVendedores.RowCount.ToString();
+        }
+        private void HabilitarControles(bool valor)
+        {
+            foreach (Control item in groupBox1.Controls)
+            {
+                if(item is TextBox || item is ComboBox)
+                {
+                     item.Enabled = valor;
+                }
+            }
+            txtCodigo.Enabled = false;
+        }
+
+        private void LimpiarControles()
+        {
+            foreach (Control item in groupBox1.Controls)
+            {
+                if(item.Name == "txtCodigo")
+                {
+                    continue;
+                }
+                else
+                {
+                    if (item is TextBox || item is ComboBox)
+                    {
+                        item.Text = string.Empty;
+                    }
+                }
+            }
+            
+        }
+
+
+        private void HabilitarBotones()
+        {
+            if(isNuevo || isEditar)
+            {
+                btnNuevo.Enabled = true;
+                btnEditar.Enabled = false;
+                btnCancelar.Enabled = true;
+                btnRegistrar.Enabled = true;
+                btnAgregarBarrios.Enabled = true;
+                HabilitarControles(true);
+            }
+            else
+            {
+                btnNuevo.Enabled = true;
+                btnEditar.Enabled = true;
+                btnCancelar.Enabled = false;
+                btnRegistrar.Enabled = false;
+                btnAgregarBarrios.Enabled = false;
+                HabilitarControles(false);
+            }
+        }
+
+        private void BtnNuevo_Click(object sender, EventArgs e)
+        {
+            isNuevo = true;
+            isEditar = false;
+            HabilitarBotones();
+            LimpiarControles();
+            txtCodigo.Text = NVendedor.GetMaxIds().ToString();
+        }
+
+        private void PcbClose_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void FrmVendedores_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            frmDashBoard das = Owner as frmDashBoard;
+            das.Enabled = true;
+            das.LoadDash();
+            das.LoadChart();
+        }
+
+        private void TxtBuscar_TextChanged(object sender, EventArgs e)
+        {
+            dgvVendedores.DataSource = NVendedor.GetShowPerName(txtBuscar.Text);
+            lblcantRegistros.Text = dgvVendedores.Rows.Count.ToString();
+            dgvVendedores.Columns[7].Visible = false;
+        }
+
+        private void BtnEditar_Click(object sender, EventArgs e)
+        {
+            if (!txtNomCli.Text.Equals(string.Empty))
+            {
+                isEditar = true;
+                isNuevo = false;
+                HabilitarBotones();
+            }
+            else
+            {
+                MessageBox.Show("Debe seleccionar primero un registro de la tabla listado");
+            }
+            
+        }
+
+        private void DgvVendedores_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            txtCodigo.Text = dgvVendedores.CurrentRow.Cells[1].Value.ToString();
+            txtNomCli.Text = dgvVendedores.CurrentRow.Cells[2].Value.ToString();
+            txtApe.Text = dgvVendedores.CurrentRow.Cells[3].Value.ToString();
+            txtCalle.Text = dgvVendedores.CurrentRow.Cells[4].Value.ToString();
+            txtAltura.Text = dgvVendedores.CurrentRow.Cells[5].Value.ToString();
+            cboBarrios.SelectedValue = Convert.ToInt32(dgvVendedores.CurrentRow.Cells[7].Value);
+            txtTelefono.Text = dgvVendedores.CurrentRow.Cells[8].Value.ToString();
+            txtEmail.Text = dgvVendedores.CurrentRow.Cells[9].Value.ToString();
+            dateTimePicker1.Value = Convert.ToDateTime(dgvVendedores.CurrentRow.Cells[10].Value);
+            tabControl1.SelectedTab = tabPage2;
+        }
+
+        private void BunifuCheckbox1_OnChange(object sender, EventArgs e)
+        {
+            if (bunifuCheckbox1.Checked)
+            {
+                dgvVendedores.ReadOnly = false;
+                dgvVendedores.Columns[0].Visible = true;
+            }
+            else
+            {
+                dgvVendedores.ReadOnly = true;
+                dgvVendedores.Columns[0].Visible = false;
+                foreach (DataGridViewRow item in dgvVendedores.Rows)
+                {
+                    item.Cells[0].Value = false;
+
+                }
+            }
+        }
+
+        private void BtnCancelar_Click(object sender, EventArgs e)
+        {
+            tabControl1.SelectedTab = tabPage1;
+            isNuevo = isEditar = false;
+            HabilitarBotones();
+        }
+
+        private void BtnRegistrar_Click(object sender, EventArgs e)
+        {
+            string rpta;
+            if (!txtNomCli.Text.Equals(string.Empty))
+            {
+                if (isNuevo)
+                {
+                    rpta = NVendedor.GetInsert(txtNomCli.Text, txtApe.Text, txtCalle.Text, Convert.ToInt32(txtAltura.Text), Convert.ToInt32(cboBarrios.SelectedValue), txtEmail.Text, dateTimePicker1.Value, Convert.ToInt64(txtTelefono.Text));
+                    if (!rpta.Equals("OK"))
+                    {
+                        MessageBox.Show("Error al registrar el vendedor  " + txtNomCli.Text);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Vendedor correctamente registrado");                    
+                    }
+                }
+                else
+                {
+                    if (isEditar)
+                    {
+                        rpta = NVendedor.GetUpdate(Convert.ToInt32(txtCodigo.Text), txtNomCli.Text, txtApe.Text, txtCalle.Text, Convert.ToInt32(txtAltura.Text), Convert.ToInt32(cboBarrios.SelectedValue), txtEmail.Text, dateTimePicker1.Value, Convert.ToInt64(txtTelefono.Text));
+                        if (!rpta.Equals("OK"))
+                        {
+                            MessageBox.Show("Error al actualizar el registro");
+                        }
+                        else
+                        {
+                            MessageBox.Show("Registro actualizado correctamente");
+                        }
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("Faltan rellenar campos");
+            }
+            LoadVend();
+            isEditar = isNuevo = false;
+            HabilitarBotones();
+        }
+        private Tuple<bool,int> GetDelete()
+        {
+
+            int contador = 0;
+            bool elimino = false;
+            foreach (DataGridViewRow item in dgvVendedores.Rows)
+            {
+                if(Convert.ToBoolean(item.Cells[0].Value ) == true)
+                {
+                    contador++;
+                    elimino = true;
+                }
+            }
+            Tuple<bool, int> tupla = Tuple.Create(elimino, contador);
+            return tupla;
+        }
+        private void BtnEliminar_Click(object sender, EventArgs e)
+        {
+            string rpta;
+            Tuple<bool, int> valores = GetDelete();
+            if (valores.Item1)
+            {
+               DialogResult dialogo =  MessageBox.Show("Seguro desea eliminar " + valores.Item2.ToString() + " registros ?", "Atencion", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if(dialogo == DialogResult.Yes)
+                {
+                    foreach (DataGridViewRow item in dgvVendedores.Rows)
+                    {
+                        if(Convert.ToBoolean( item.Cells[0].Value) == true)
+                        {
+                            rpta = NVendedor.GetDelete(Convert.ToInt32(item.Cells[1].Value));
+                            if (!rpta.Equals("OK"))
+                            {
+                                MessageBox.Show("Error al eliminar el registro con ID: " + item.Cells[1].Value.ToString());
+                                return;
+                            }
+                            
+                        }
+                    }
+                    MessageBox.Show("Se eliminaron correctamente " + valores.Item2.ToString() + " Registros");
+                }
+            }
+            bunifuCheckbox1.Checked = false;
+            BunifuCheckbox1_OnChange(bunifuCheckbox1, e);
+            LoadVend();
+
+        }
+
+        private void BtnAgregarBarrios_Click(object sender, EventArgs e)
+        {
+            FrmBarrios barrio = new FrmBarrios();
+            barrio.Show();
+            this.Enabled = false;
+            AddOwnedForm(barrio);
+        }
+        public void LlenarCombo()
+        {
+            cboBarrios.DataSource = NBarrio.Show();
+            cboBarrios.DisplayMember = "BARRIO";
+            cboBarrios.ValueMember = "CODIGO";
+        }
+        private void FrmVendedores_Load(object sender, EventArgs e)
+        {
+            
+            isNuevo = isEditar = false;
+            LlenarCombo();
+            LoadVend();
+            HabilitarBotones();
+            
+            txtCodigo.Text = NVendedor.GetMaxIds().ToString();
+        }
+    }
+}

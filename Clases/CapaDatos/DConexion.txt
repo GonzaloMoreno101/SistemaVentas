@@ -1,0 +1,17 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+using System.Data;
+using System.Data.SqlClient;
+
+namespace CapaDatos
+{
+    class Conexion
+    {
+        public static string cadenaConexion = "Data Source=USUARIO-PC\\SQLEXPRESS;Initial Catalog=LIBRERIA;Integrated Security=True";
+        
+    }
+}

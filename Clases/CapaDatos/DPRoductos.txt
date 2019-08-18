@@ -1,0 +1,186 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+using System.Data;
+using System.Data.SqlClient;
+namespace CapaDatos
+{
+    public class DProductos
+    {
+        int codigo;
+        string nombre;
+        Int16 stock;
+        double precio;
+        string observacion;
+
+
+        public int _Codigo { get => codigo; set => codigo = value; }
+        public string _Nombre { get => nombre; set => nombre = value; }
+        public short _Stock { get => stock; set => stock = value; }
+        public double _Precio { get => precio; set => precio = value; }
+        public string _Observacion { get => observacion; set => observacion = value; }
+
+        public DProductos(int Codigo, string Nombre, short Stock, double Precio, string Observacion)
+        {
+            _Codigo = Codigo;
+            _Nombre = Nombre;
+            _Stock = Stock;
+            _Precio = Precio;
+            _Observacion = Observacion;
+        }
+
+        public DProductos()
+        {
+            _Codigo = 0;
+            _Nombre = "";
+            _Stock = 0;
+            _Precio = 0;
+            _Observacion = "";
+        }
+
+
+        public string ToStringProd(DProductos prod)
+        {
+           
+            return "Codigo: " + prod._Codigo.ToString() + "\n" + "Nombre: " + prod._Nombre + "\n" + "Stock: " + prod._Stock.ToString() + "\n" + "Precio: " +prod._Precio.ToString() + "\n"
+                + "Observaciones: " +prod._Observacion;
+        }
+
+        public string Insert(DProductos prod)
+        {
+            string rpta;
+            SqlConnection conexion = new SqlConnection(Conexion.cadenaConexion);
+            try
+            {
+                conexion.Open();
+                SqlCommand comando = new SqlCommand("SP_INSERT_ARTICULOS", conexion);
+                comando.CommandType = CommandType.StoredProcedure;
+                comando.Parameters.Add("@COD", SqlDbType.Int).Direction = ParameterDirection.Output;
+                comando.Parameters.Add("@DESC", SqlDbType.VarChar, size: 50).Value = prod._Nombre;
+                comando.Parameters.Add("@STOCK", SqlDbType.SmallInt).Value = prod._Stock;
+                comando.Parameters.Add("@PRECIO", SqlDbType.Decimal).Value = prod._Precio;
+                comando.Parameters.Add("@OBS", SqlDbType.NVarChar, size: 50).Value = prod._Observacion;
+                rpta = comando.ExecuteNonQuery() == 1 ? "OK" : "No se Registro";
+            }
+            catch (Exception e)
+            {
+
+                rpta = e.Message;
+            }
+            finally
+            {
+                if (conexion.State == ConnectionState.Open) conexion.Close();
+            }
+            return rpta;
+            
+        }
+
+        public string Update(DProductos prod)
+        {
+            string rpta;
+            SqlConnection conexion = new SqlConnection(Conexion.cadenaConexion);
+            try
+            {
+                conexion.Open();
+                SqlCommand comando = new SqlCommand("SP_EDITAR_ARTICULOS", conexion);
+                comando.CommandType = CommandType.StoredProcedure;
+                comando.Parameters.Add("@COD", SqlDbType.Int).Value = prod._Codigo;
+                comando.Parameters.Add("@DESC", SqlDbType.VarChar, size: 50).Value = prod._Nombre;
+                comando.Parameters.Add("@STOCK", SqlDbType.SmallInt).Value = prod._Stock;
+                comando.Parameters.Add("@PRECIO", SqlDbType.Decimal).Value = prod._Precio;
+                comando.Parameters.Add("@OBS", SqlDbType.NVarChar, size: 50).Value = prod._Observacion;
+                rpta = comando.ExecuteNonQuery() == 1 ? "OK" : "No se Registro";
+            }
+            catch (Exception e)
+            {
+
+                rpta = e.Message;
+            }
+            finally
+            {
+                if (conexion.State == ConnectionState.Open) conexion.Close();
+            }
+            return rpta;
+
+        }
+
+        public string Delete(DProductos prod)
+        {
+            string rpta;
+            SqlConnection conexion = new SqlConnection(Conexion.cadenaConexion);
+            try
+            {
+                conexion.Open();
+                SqlCommand comando = new SqlCommand("SP_DELETE_ARTICULO", conexion);
+                comando.CommandType = CommandType.StoredProcedure;
+                comando.Parameters.Add("@COD", SqlDbType.Int).Value = prod._Codigo;
+                rpta = comando.ExecuteNonQuery() == 1 ? "OK" : "No se Elimino";
+            }
+            catch (Exception e)
+            { 
+
+         
+                rpta = e.Message;
+            }
+            finally
+            {
+                if (conexion.State == ConnectionState.Open) conexion.Close();
+            }
+            return rpta;
+
+        }
+
+        public DataTable Show()
+        {
+            DataTable tabla = new DataTable();
+            SqlConnection conexion = new SqlConnection(Conexion.cadenaConexion);
+            try
+            {
+                conexion.Open();
+                SqlCommand comando = new SqlCommand("SP_GET_PRODUCTOS", conexion);
+                comando.CommandType = CommandType.StoredProcedure;
+                SqlDataAdapter adaptador = new SqlDataAdapter(comando);
+                adaptador.Fill(tabla);
+            }
+            catch (Exception )
+            {
+                tabla = null;
+            }
+            finally
+            {
+                if (conexion.State == ConnectionState.Open) conexion.Close();
+            }
+            return tabla;
+
+        }
+
+        public DataTable ShowPerName(DProductos prod)
+        {
+            DataTable tabla = new DataTable();
+            SqlConnection conexion = new SqlConnection(Conexion.cadenaConexion);
+            try
+            {
+                conexion.Open();
+                SqlCommand comando = new SqlCommand("SP_MOSTRAR_ART_POR_NOMBRE", conexion);
+                comando.CommandType = CommandType.StoredProcedure;
+                comando.Parameters.Add("@NOMBRE", SqlDbType.VarChar, size: 50).Value = prod.nombre;
+                SqlDataAdapter adaptador = new SqlDataAdapter(comando);
+                adaptador.Fill(tabla);
+            }
+            catch (Exception)
+            {
+                tabla = null;
+            }
+            finally
+            {
+                if (conexion.State == ConnectionState.Open) conexion.Close();
+            }
+            return tabla;
+
+        }
+
+    }
+}

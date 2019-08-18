@@ -1,0 +1,235 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+using System.Data;
+using System.Data.SqlClient;
+using System.Windows.Forms;
+
+namespace CapaDatos
+{
+    public class DBarrio
+    {
+        int _codigo;
+        string _nombre;
+
+        public int Codigo { get => _codigo; set => _codigo = value; }
+        public string Nombre { get => _nombre; set => _nombre = value; }
+
+        public DBarrio()
+        {
+            Codigo = 0;
+            Nombre = "";
+        }
+
+        public DBarrio(int codigo,string nombre)
+        {
+            this.Codigo = codigo;
+            this.Nombre = nombre;
+        }
+
+        public string Insert(DBarrio barrio)
+        {
+            string rpta = "";
+            SqlConnection conexion = new SqlConnection();
+            conexion.ConnectionString = Conexion.cadenaConexion;
+            try
+            {
+                conexion.Open();
+                SqlCommand comando = new SqlCommand();
+                comando.CommandText = "SP_INSERTAR_BARRIO";
+                comando.Connection = conexion;
+                comando.CommandType = CommandType.StoredProcedure;
+
+                SqlParameter parID = new SqlParameter();
+                parID.ParameterName = "@ID";
+                parID.SqlDbType = SqlDbType.Int;
+                parID.Value = barrio._codigo;
+
+                SqlParameter parNOMBRE = new SqlParameter();
+                parNOMBRE.ParameterName = "@NOMBRE";
+                parNOMBRE.SqlDbType = SqlDbType.VarChar;
+                parNOMBRE.Size = 100;
+                parNOMBRE.Value = barrio._nombre;
+
+                comando.Parameters.Add(parID);
+                comando.Parameters.Add(parNOMBRE);
+                rpta = comando.ExecuteNonQuery() == 1 ? "OK" : "NO SE REGISTRO";
+
+            }
+            catch (Exception e)
+            {
+                rpta = e.Message;
+                
+            }
+            finally
+            {
+                if (conexion.State == ConnectionState.Open) conexion.Close();
+            }
+           
+             return rpta;
+        }
+        public string Update(DBarrio barrio)
+        {
+            string rpta = "";
+            SqlConnection conexion = new SqlConnection();
+            conexion.ConnectionString = Conexion.cadenaConexion;
+            try
+            {
+                conexion.Open();
+                SqlCommand comando = new SqlCommand();
+                comando.CommandText = "SP_EDITAR_BARRIO";
+                comando.CommandType = CommandType.StoredProcedure;
+                comando.Connection = conexion;
+
+                SqlParameter pID = new SqlParameter();
+                pID.ParameterName = "@ID";
+                pID.SqlDbType = SqlDbType.Int;
+                pID.Value = barrio.Codigo;
+
+                SqlParameter pNOMBRE = new SqlParameter();
+                pNOMBRE.ParameterName = "@NOMBRE";
+                pNOMBRE.SqlDbType = SqlDbType.VarChar;
+                pNOMBRE.Size = 100;
+                pNOMBRE.Value = barrio.Nombre;
+
+                comando.Parameters.Add(pID);
+                comando.Parameters.Add(pNOMBRE);
+
+                rpta = comando.ExecuteNonQuery() == 1 ? "OK" : "EROR DE ACTUALIZACION";
+
+            }
+            catch (Exception e)
+            {
+
+                rpta = e.Message;
+            }
+            finally
+            {
+                if (conexion.State == ConnectionState.Open) conexion.Close();
+            }
+            return rpta;
+        }
+
+        public string Delete(DBarrio barrio)
+        {
+            string rpta = "";
+            SqlConnection conexion = new SqlConnection();
+            conexion.ConnectionString = Conexion.cadenaConexion;
+            try
+            {
+                conexion.Open();
+                SqlCommand comando = new SqlCommand();
+                comando.CommandText = "SP_ELIMINAR_BARRIO";
+                comando.CommandType = CommandType.StoredProcedure;
+                comando.Connection = conexion;
+                SqlParameter pID = new SqlParameter();
+                pID.ParameterName = "@ID";
+                pID.SqlDbType = SqlDbType.Int;
+                pID.Value = barrio.Codigo;
+
+                comando.Parameters.Add(pID);
+                rpta = comando.ExecuteNonQuery() == 1 ? "OK" : "NO SE ELIMINO";
+            }
+            catch (Exception e)
+            {
+
+                rpta = e.Message;
+            }
+            finally
+            {
+                if (conexion.State == ConnectionState.Open) conexion.Close();
+            }
+            return rpta;
+        }
+        
+        public int GetMaxId()
+        {
+            int maxId;
+            SqlConnection conexion = new SqlConnection();
+            conexion.ConnectionString = Conexion.cadenaConexion;
+            try
+            {
+                conexion.Open();
+                SqlCommand comando = new SqlCommand();
+                comando.CommandType = CommandType.StoredProcedure;
+                comando.CommandText = "GET_MAX_BARRIO";
+                comando.Connection = conexion;
+                maxId = Convert.ToInt32(comando.ExecuteScalar());
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            finally
+            {
+                if (conexion.State == ConnectionState.Open) conexion.Close();
+            }
+            return maxId;
+        }
+        public DataTable Show()
+        {
+            DataTable tabla = new DataTable();
+            SqlConnection conexion = new SqlConnection();
+            conexion.ConnectionString = Conexion.cadenaConexion;
+            try
+            {
+                conexion.Open();
+                SqlCommand comando = new SqlCommand();
+                comando.CommandText = "SP_MOSTRAR_BARRIOS";
+                comando.CommandType = CommandType.StoredProcedure;
+                comando.Connection = conexion;
+                SqlDataAdapter adaptador = new SqlDataAdapter(comando);
+                adaptador.Fill(tabla);
+            }
+            catch (Exception)
+            {
+                tabla = null;
+                
+            }
+            finally
+            {
+                if (conexion.State == ConnectionState.Open) conexion.Close();
+                
+            }
+            return tabla;
+        }
+
+        public DataTable ShowPerName(DBarrio barrio)
+        {
+            DataTable tabla = new DataTable();
+            SqlConnection conexion = new SqlConnection();
+            conexion.ConnectionString = Conexion.cadenaConexion;
+            try
+            {
+                conexion.Open();
+                SqlCommand comando = new SqlCommand();
+                comando.CommandType = CommandType.StoredProcedure;
+                comando.Connection = conexion;
+                comando.CommandText = "SP_BUSCAR_NOMBRE";
+                SqlParameter pNOMBRE = new SqlParameter();
+                pNOMBRE.ParameterName = "@NOMBRE";
+                pNOMBRE.SqlDbType = SqlDbType.VarChar;
+                pNOMBRE.Size = 100;
+                pNOMBRE.Value = barrio.Nombre;
+                comando.Parameters.Add(pNOMBRE);
+                SqlDataAdapter adaptador = new SqlDataAdapter(comando);
+                adaptador.Fill(tabla);
+            }
+            catch (Exception)
+            {
+
+                tabla = null;
+                MessageBox.Show("Nada");
+            }
+            finally
+            {
+                if (conexion.State == ConnectionState.Open) conexion.Close();
+            }
+            return tabla;
+        }
+    }
+}

@@ -1,0 +1,69 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+using CapaDatos;
+using System.Data;
+
+namespace CapaNegocios
+{
+    public class NVendedor
+    {
+        public static string GetInsert(string nombre,string ape,string calle,int altura,int barrio,string email,DateTime nac,Int64 nro)
+        {
+            DVendedor vend = new DVendedor();
+            vend.Altura = altura;
+            vend.Apellido = ape;
+            vend.Calle = calle;
+            vend.Nombre = nombre;
+            vend.CodBarrio = barrio;
+            vend.Email = email;
+            vend.FecNac = nac;
+            vend.NroTelefono = nro;
+            return vend.Insert(vend);
+        }
+
+        public static string GetUpdate(int codigo,string nombre, string ape, string calle, int altura, int barrio, string email, DateTime nac, Int64 nro)
+        {
+            DVendedor vend = new DVendedor();
+            vend.Cod_vendedor = codigo;
+            vend.Altura = altura;
+            vend.Apellido = ape;
+            vend.Calle = calle;
+            vend.Nombre = nombre;
+            vend.CodBarrio = barrio;
+            vend.Email = email;
+            vend.FecNac = nac;
+            vend.NroTelefono = nro;
+            return vend.Update(vend);
+        }
+
+        public static string GetDelete(int codigo)
+        {
+            DVendedor vend = new DVendedor();
+            vend.Cod_vendedor = codigo;
+            return vend.Delete(vend);
+        }
+
+        public static DataTable GetShow()
+        {
+            DVendedor vend = new DVendedor();
+            return vend.Show();
+        }
+
+        public static DataTable GetShowPerName(string nombre)
+        {
+            DVendedor vend = new DVendedor();
+            vend.Nombre = nombre;
+            return vend.ShowPerName(vend);
+        }
+
+        public static int GetMaxIds()
+        {
+            DVendedor vend = new DVendedor();
+            return vend.GetMaxId();
+        }
+    }
+}

@@ -1,0 +1,67 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+using CapaDatos;
+using System.Data;
+
+namespace CapaNegocios
+{
+    public class NProductos
+    {
+       
+        public static string GetInsert(string nombre,Int16 stock,double precio,string obs)
+        {
+            DProductos prod = new DProductos();
+            prod._Nombre = nombre;
+            prod._Stock = stock;
+            prod._Precio = precio;
+            prod._Observacion = obs;
+            return prod.Insert(prod);
+        }
+
+        public static DataTable GetShow()
+        {
+            DProductos prod = new DProductos();
+            return prod.Show();
+        }
+
+        public static string GetUpdate(int cod,string nombre, Int16 stock, double precio, string obs)
+        {
+            DProductos prod = new DProductos();
+            prod._Codigo = cod;
+            prod._Nombre = nombre;
+            prod._Stock = stock;
+            prod._Precio = precio;
+            prod._Observacion = obs;
+            return prod.Update(prod);
+        }
+        public static string GetDelete(int cod)
+        {
+            DProductos prod = new DProductos();
+            prod._Codigo = cod;
+            return prod.Delete(prod);
+        }
+
+        public static DataTable  GetShowPerName(string nombre)
+        {
+            DProductos prod = new DProductos();
+            prod._Nombre = nombre;
+            return prod.ShowPerName(prod);
+        }
+
+
+        public static String GetToStringProd(int id,string nom,Int16 stock,double precio,string obs)
+        {
+            DProductos prod = new DProductos();
+            prod._Codigo = id;
+            prod._Nombre = nom;
+            prod._Stock = stock;
+            prod._Precio = precio;
+            prod._Observacion = obs;
+            return prod.ToStringProd(prod);
+        }
+    }
+}

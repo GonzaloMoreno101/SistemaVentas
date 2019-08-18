@@ -1,0 +1,58 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Collections;
+using CapaDatos;
+using System.Data;
+
+namespace CapaNegocios
+{
+    public class NDashBoard
+    {
+        public static Tuple<int,int,double,int,int> DashBoard()
+        {
+            DashBoard dash = new DashBoard();
+            dash.Año = DateTime.Today.Year;
+            dash.Mes = DateTime.Today.Month;
+            return dash.GetDashBoard();
+        }
+
+        
+        public static Tuple<ArrayList, ArrayList> GetSellPerMonth()
+        {
+            DashBoard das = new DashBoard();
+            das.Año = DateTime.Today.Year;
+            DataTable tabla = das.SellsPerMonth(das);
+            ArrayList campoX = new ArrayList();
+            ArrayList campoY = new ArrayList();
+            Tuple<ArrayList, ArrayList> tupla;
+            foreach (DataRow item in tabla.Rows)
+            {
+                campoX.Add(item[0]);
+                campoY.Add(item[1]);
+            }
+            tupla = Tuple.Create(campoX, campoY);
+            return tupla;
+        }
+
+        public static Tuple<ArrayList,ArrayList> GetBestSellers()
+        {
+            DashBoard das = new DashBoard();
+            das.Mes = DateTime.Today.Month;
+            das.Año = DateTime.Today.Year;
+            DataTable tabla = das.BestSellers(das);
+            ArrayList campoX = new ArrayList();
+            ArrayList campoY = new ArrayList();
+            Tuple<ArrayList, ArrayList> tupla;
+            foreach (DataRow item in tabla.Rows)
+            {
+                campoX.Add(item[0]);
+                campoY.Add(item[2]);
+            }
+            tupla = Tuple.Create(campoX, campoY);
+            return tupla;  
+        }
+    }
+}

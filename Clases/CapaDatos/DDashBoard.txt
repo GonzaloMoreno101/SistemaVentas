@@ -1,0 +1,147 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+using System.Data;
+using System.Data.SqlClient;
+using System.Windows.Forms;
+
+namespace CapaDatos
+{
+    public class DashBoard
+    {
+        int año;
+        int mes;
+
+        public int Año { get => año; set => año = value; }
+        public int Mes { get => mes; set => mes = value; }
+
+       public Tuple<int,int,double,int,int> GetDashBoard()
+        {
+            SqlConnection conexion = new SqlConnection();
+            Tuple<int, int, double, int, int> tupla;
+            conexion.ConnectionString = Conexion.cadenaConexion;
+            try
+            {
+                conexion.Open();
+                SqlCommand comando = new SqlCommand("SP_DASH", conexion);
+                
+                comando.Parameters.Add("@AÑO", SqlDbType.Int).Value = DateTime.Today.Year;
+                
+                comando.Parameters.Add("@CANT_PRODUCTOS", SqlDbType.Int).Direction = ParameterDirection.Output;
+                comando.Parameters.Add("@CANT_VENTAS", SqlDbType.Int).Direction = ParameterDirection.Output;
+                comando.Parameters.Add("@TOTAL_VENTAS", SqlDbType.Money).Direction = ParameterDirection.Output;
+                comando.Parameters.Add("@CANT_VENDEDORES", SqlDbType.Int).Direction = ParameterDirection.Output;
+                comando.Parameters.Add("@CANT_CLIENTES", SqlDbType.Int).Direction = ParameterDirection.Output;
+                SqlParameter par = new SqlParameter();
+                par.ParameterName = "@MES";
+                par.SqlDbType = SqlDbType.Int;
+                par.Value = 2019;
+                comando.Parameters.Add(par);
+                int cantProd = Convert.ToInt32(comando.Parameters["@CANT_PRODUCTOS"].Value);
+                int cantVentas = Convert.ToInt32(comando.Parameters["@CANT_VENTAS"].Value);
+                double totalVentas = Convert.ToDouble(comando.Parameters["@TOTAL_VENTAS"].Value);
+                int cantVendedores = Convert.ToInt32(comando.Parameters["@CANT_VENDEDORES"].Value);
+                int canCLientes = Convert.ToInt32(comando.Parameters["@CANT_CLIENTES"].Value);
+                comando.ExecuteNonQuery();
+                tupla = Tuple.Create(cantProd, cantVentas, totalVentas, cantVendedores, canCLientes);
+            }
+            catch (Exception e)
+            {
+
+                MessageBox.Show("Error"  + e.Message);
+                tupla = null;
+            }
+            return tupla;
+            
+            
+            
+        }
+        public DataTable SellsPerMonth(DashBoard dash)
+        {
+            DataTable tabla = new DataTable();
+            SqlConnection conexion = new SqlConnection();
+            conexion.ConnectionString = Conexion.cadenaConexion;
+            try
+            {
+                conexion.Open();
+                SqlCommand comando = new SqlCommand();
+                comando.Connection = conexion;
+                comando.CommandText = "SELL_PER_MES";
+                comando.CommandType = CommandType.StoredProcedure;
+                comando.Parameters.Add("@AÑO", SqlDbType.Int).Value = dash.Año;
+                
+                SqlDataAdapter adaptador = new SqlDataAdapter(comando);
+                adaptador.Fill(tabla);
+
+            }
+            catch (Exception)
+            {
+                tabla = null;
+            }
+            finally
+            {
+                if (conexion.State == ConnectionState.Open) conexion.Close();
+            }
+            return tabla;
+        }
+
+       public DataTable BestSellers(DashBoard dash)
+        {
+            DataTable tabla = new DataTable();
+            SqlConnection conexion = new SqlConnection(Conexion.cadenaConexion);
+            try
+            {
+                conexion.Open();
+                SqlCommand comando = new SqlCommand();
+                comando.CommandType = CommandType.StoredProcedure;
+                comando.Connection = conexion;
+                comando.CommandText = "MEJORES_VENDEDORES";
+
+                comando.Parameters.Add("@MES", SqlDbType.Int).Value = dash.Mes;
+                comando.Parameters.Add("@AÑO", SqlDbType.Int).Value = dash.Año;
+
+                SqlDataAdapter adaptador = new SqlDataAdapter(comando);
+                adaptador.Fill(tabla);
+
+            }
+            catch (Exception)
+            {
+
+                tabla = null;
+            }
+            finally
+            {
+                if (conexion.State == ConnectionState.Open) conexion.Close();
+            }
+            return tabla;
+            
+            
+
+            
+        }
+
+        public double totalVentas()
+        {
+            SqlConnection conexion = new SqlConnection(Conexion.cadenaConexion);
+
+            conexion.Open();
+            SqlCommand comando = new SqlCommand("LACONCHADETUMADRE", conexion);
+            comando.CommandType = CommandType.StoredProcedure;
+            comando.Connection = conexion;
+            comando.CommandText = "MEJORES_VENDEDORES";
+
+            comando.Parameters.Add("@MES", SqlDbType.Int).Value = DateTime.Today.Month;
+            comando.Parameters.Add("@AÑO", SqlDbType.Int).Value = DateTime.Today.Year;
+            comando.Parameters.Add("@TOTAL", SqlDbType.Money).Direction = ParameterDirection.Output;
+            comando.ExecuteNonQuery();
+            double total = Convert.ToDouble(comando.Parameters["TOTAL"].Value);
+            return total;
+        }
+    }
+    
+
+    
+}

@@ -1,0 +1,297 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+using CapaNegocios;
+
+namespace CapaPresentacion
+{
+    public partial class FrmBarrios : Form
+    {
+        public bool isNuevo = false;
+        public bool isEditar = false;
+        public FrmBarrios()
+        {
+            InitializeComponent();
+        }
+
+        private void PcbClose_Click(object sender, EventArgs e)
+        {
+            frmCliente cliente = Owner as frmCliente;
+            frmVendedores vendedor = Owner as frmVendedores;
+            if(cliente  != null)
+            {
+                cliente.Enabled = true;
+                cliente.LlenarCombo();
+                this.Close();
+            }
+            else
+            {
+                if(vendedor != null)
+                {
+                    vendedor.Enabled = true;
+                    vendedor.LlenarCombo();
+                    this.Close();
+                }
+            }
+            
+        }
+
+        private void Show()
+        {
+            dgvBarrios.DataSource = NBarrio.Show();
+        }
+        private void PcbMinimize_Click(object sender, EventArgs e)
+        {
+            this.WindowState = FormWindowState.Minimized;
+        }
+
+        private void FrmBarrios_Load(object sender, EventArgs e)
+        {
+            isNuevo = isEditar = false;
+            dgvBarrios.DataSource = NBarrio.Show();
+            HabilitarBotones();
+            txtCodigo.Text = NBarrio.GetMaxId().ToString();
+            dgvBarrios.Columns[0].Visible = false;
+        }
+
+        private void Button1_Click(object sender, EventArgs e)
+        {
+            dgvBarrios.DataSource = NBarrio.ShowPerName(txtNombre.Text);
+        }
+
+        private void TxtNombre_TextChanged(object sender, EventArgs e)
+        {
+            dgvBarrios.DataSource = NBarrio.ShowPerName(txtNombre.Text);
+        }
+
+        private void HabilitarControles(bool valor)
+        {
+            this.txtNomBarrio.Enabled = valor;
+            this.txtCodigo.Enabled = false;
+        }
+
+        private void MensajeError(string mensaje)
+        {
+            MessageBox.Show(mensaje, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+        private void MensajeInformacion(string mensaje)
+        {
+            MessageBox.Show(mensaje, "Atencion", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void HabilitarBotones()
+        {
+            if(isNuevo || isEditar)
+            {
+                HabilitarControles(true);
+                btnCancelar.Enabled = true;
+                btnNuevo.Enabled = false;
+                btnRegistrar.Enabled = true;
+                btnEditar.Enabled = false;
+                
+            }
+            else
+            {
+                HabilitarControles(false);
+                btnNuevo.Enabled = true;
+                btnRegistrar.Enabled = false;
+                btnCancelar.Enabled = false;
+                btnEditar.Enabled = true;
+               
+            }
+        }
+
+        private void BtnEditar_Click(object sender, EventArgs e)
+        {
+            
+            if (!txtNomBarrio.Text.Equals(""))
+            {
+                isEditar = true;
+                HabilitarBotones();
+                HabilitarControles(true);
+                
+
+            }
+            else
+            {
+                MensajeError("Ingrese el nombre");
+            }
+        }
+
+        public void Limpiar()
+        {
+             txtNomBarrio.Text = string.Empty;
+        }
+        private void BtnRegistrar_Click(object sender, EventArgs e)
+        {
+            string rpta;
+            try
+            {
+                if(this.txtNomBarrio.Text == string.Empty)
+                {
+                    MensajeError("Ingrese un Nombre");
+                }
+                else
+                {
+                    if (isNuevo)
+                    {
+                        rpta = NBarrio.Insert(Convert.ToInt32(txtCodigo.Text), txtNomBarrio.Text);
+;                    }
+                    else
+                    {
+                        rpta = NBarrio.Update(Convert.ToInt32(txtCodigo.Text), txtNomBarrio.Text);
+                    }
+                    if(rpta == "OK")
+                    {
+                        if (isNuevo)
+                        {
+                            MensajeInformacion("Se inserto de forma correcta el registro");
+                        }
+                        else
+                        {
+                            MensajeInformacion("Se actualizo correctamente le registro");
+                        }
+                    }
+                    else
+                    {
+                        MensajeError(rpta);
+                    }
+                    this.isNuevo = isEditar = false;
+                    HabilitarBotones();
+                    Limpiar();
+                    dgvBarrios.DataSource = NBarrio.ShowPerName(txtNombre.Text);
+                    txtCodigo.Text = NBarrio.GetMaxId().ToString();
+
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            
+            
+        }
+
+        private bool Validar()
+        {
+            if(txtNomBarrio.Text == "")
+            {
+                ttAyuda.SetToolTip(txtNomBarrio, "Ingrese un Nombre");
+                
+                txtNomBarrio.Focus();
+                return false;
+            }
+            return true;
+        }
+        private void DgvBarrios_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            
+        }
+
+        private void BtnNuevo_Click(object sender, EventArgs e)
+        {
+            Limpiar();
+            txtCodigo.Text = NBarrio.GetMaxId().ToString();
+            isNuevo = true;
+            HabilitarBotones();
+        }
+
+        private void BtnCancelar_Click(object sender, EventArgs e)
+        {
+            isNuevo = false;
+            isEditar = false;
+            HabilitarBotones();
+            Limpiar();
+            HabilitarControles(false);
+        }
+
+        private void DgvBarrios_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            txtCodigo.Text = Convert.ToString(dgvBarrios.CurrentRow.Cells[1].Value);
+            txtNomBarrio.Text = dgvBarrios.CurrentRow.Cells[2].Value.ToString();
+            tabControl1.SelectedTab = tabPage2;
+            isEditar = isNuevo = false;
+            btnEditar.Enabled = true;
+        }
+
+        private void BunifuCheckbox1_OnChange(object sender, EventArgs e)
+        {
+            if (bunifuCheckbox1.Checked)
+            {
+                dgvBarrios.Columns[0].Visible = true;
+                dgvBarrios.ReadOnly = false;
+            }
+            else
+            {
+                dgvBarrios.ReadOnly = true;
+                for (int i = 0; i < dgvBarrios.RowCount; i++)
+                {
+                    dgvBarrios.Rows[i].Cells[0].Value = false;
+                }
+                dgvBarrios.Columns[0].Visible = false;
+            }
+        }
+        private int GetDelete()
+        {
+            int contador = 0;
+            for (int i = 0; i < dgvBarrios.RowCount; i++)
+            {
+                if(Convert.ToBoolean(dgvBarrios.Rows[i].Cells[0].Value) == true)
+                {
+                    contador++;
+                }
+
+                
+            }
+            return contador;
+        }
+        private void Button2_Click(object sender, EventArgs e)
+        {
+            string rpta;
+            int contador = GetDelete();
+            if(contador > 0)
+            {
+                for (int i = 0; i < dgvBarrios.RowCount; i++)
+                {
+                    if (Convert.ToBoolean(dgvBarrios.Rows[i].Cells[0].Value) == true)
+                    {
+                        rpta = NBarrio.Delete(Convert.ToInt32(dgvBarrios.Rows[i].Cells[1].Value));
+                        if (!rpta.Equals("OK"))
+                        {
+                            MessageBox.Show("Hubo un error al eliminar un registro" + rpta);
+                            bunifuCheckbox1.Checked = false;
+                            BunifuCheckbox1_OnChange(bunifuCheckbox1, e);
+                            return;
+                        }
+
+                    }
+                }
+                MessageBox.Show("Se eliminaron " + contador.ToString() + " Registros");
+                bunifuCheckbox1.Checked = false;
+                BunifuCheckbox1_OnChange(bunifuCheckbox1, e);
+                
+                Show();
+            
+            }
+            else
+            {
+                MessageBox.Show("Debe Seleccionar un elemento a eliminar");
+            }
+            
+        }
+
+        private void FrmBarrios_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            
+        }
+    }
+}

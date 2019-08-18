@@ -1,0 +1,200 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+using System.Data;
+using System.Data.SqlClient;
+
+namespace CapaDatos
+{
+    public class DVendedor:Persona
+    {
+        int cod_vendedor;
+        DateTime fecNac;
+
+        public DVendedor(int cod_vendedor, DateTime fecNac, string nombre, string apellido, string calle, int altura, int codBarrio, Int64 nroTel, string email) :base(nombre,apellido,calle,altura,codBarrio,nroTel,email)
+        {
+            Cod_vendedor = cod_vendedor;
+            FecNac = fecNac;
+        }
+
+        public DVendedor():base()
+        {
+            Cod_vendedor = 0;
+            CodBarrio = 0;
+        }
+
+        public int Cod_vendedor { get => cod_vendedor; set => cod_vendedor = value; }
+        public DateTime FecNac { get => fecNac; set => fecNac = value; }
+
+        public string Insert(DVendedor vend)
+        {
+            string rpta;
+            SqlConnection conexion = new SqlConnection(Conexion.cadenaConexion);
+            try
+            {
+                conexion.Open();
+                SqlCommand comando = new SqlCommand("SP_INSERT_VEND", conexion);
+                comando.CommandType = CommandType.StoredProcedure;
+                comando.Parameters.Add("@COD", SqlDbType.Int).Direction = ParameterDirection.Output;
+                comando.Parameters.Add("@NOM", SqlDbType.NVarChar, size: 50).Value = vend.Nombre;
+                comando.Parameters.Add("@APE", SqlDbType.NVarChar, size: 50).Value = vend.Apellido;
+                comando.Parameters.Add("@CALLE", SqlDbType.NVarChar, size: 50).Value = vend.Calle;
+                comando.Parameters.Add("@ALTURA", SqlDbType.Int).Value = vend.Altura;
+                comando.Parameters.Add("@BARRIO", SqlDbType.Int).Value = vend.CodBarrio;
+                comando.Parameters.Add("@NRO", SqlDbType.BigInt).Value = vend.NroTelefono;
+                comando.Parameters.Add("@EMAIL", SqlDbType.NVarChar, size: 50).Value = vend.Email;
+                comando.Parameters.Add("@NACIMIENTO", SqlDbType.SmallDateTime).Value = vend.FecNac;
+                rpta = comando.ExecuteNonQuery() == 1 ? "OK" : "NO SE PUDO REGISTRAR";
+                
+            }
+            catch (Exception e)
+            {
+
+                rpta = e.Message;
+            }
+            finally
+            {
+                if (conexion.State == ConnectionState.Open) conexion.Close();
+            }
+            return rpta;
+        }
+
+        public string Update(DVendedor vend)
+        {
+            string rpta;
+            SqlConnection conexion = new SqlConnection(Conexion.cadenaConexion);
+            try
+            {
+                conexion.Open();
+                SqlCommand comando = new SqlCommand("SP_UPDATE_VEND", conexion);
+                comando.CommandType = CommandType.StoredProcedure;
+                comando.Parameters.Add("@COD", SqlDbType.Int).Value = vend.Cod_vendedor;
+                comando.Parameters.Add("@NOM", SqlDbType.NVarChar, size: 50).Value = vend.Nombre;
+                comando.Parameters.Add("@APE", SqlDbType.NVarChar, size: 50).Value = vend.Apellido;
+                comando.Parameters.Add("@CALLE", SqlDbType.NVarChar, size: 50).Value = vend.Calle;
+                comando.Parameters.Add("@ALTURA", SqlDbType.Int).Value = vend.Altura;
+                comando.Parameters.Add("@BARRIO", SqlDbType.Int).Value = vend.CodBarrio;
+                comando.Parameters.Add("@NRO", SqlDbType.BigInt).Value = vend.NroTelefono;
+                comando.Parameters.Add("@EMAIL", SqlDbType.NVarChar, size: 50).Value = vend.Email;
+                comando.Parameters.Add("@NACIMIENTO", SqlDbType.SmallDateTime).Value = vend.FecNac;
+                rpta = comando.ExecuteNonQuery() == 1 ? "OK" : "NO SE PUDO ACTUALIZAR";
+
+            }
+            catch (Exception e)
+            {
+
+                rpta = e.Message.ToUpper();
+            }
+            finally
+            {
+                if (conexion.State == ConnectionState.Open) conexion.Close();
+            }
+            return rpta;
+        }
+
+        public string Delete(DVendedor vend)
+        {
+            string rpta;
+            SqlConnection conexion = new SqlConnection(Conexion.cadenaConexion);
+            try
+            {
+                conexion.Open();
+                SqlCommand comando = new SqlCommand("SP_DELETE_VEND", conexion);
+                comando.CommandType = CommandType.StoredProcedure;
+                comando.Parameters.Add("@COD", SqlDbType.Int).Value = vend.Cod_vendedor;
+                
+                rpta = comando.ExecuteNonQuery() == 1 ? "OK" : "NO SE PUDO ELIMINAR";
+
+            }
+            catch (Exception e)
+            {
+
+                rpta = e.Message.ToUpper();
+            }
+            finally
+            {
+                if (conexion.State == ConnectionState.Open) conexion.Close();
+            }
+            return rpta;
+        }
+
+        public DataTable Show()
+        {
+            DataTable tabla = new DataTable();
+            SqlConnection conexion = new SqlConnection(Conexion.cadenaConexion);
+            try
+            {
+                conexion.Open();
+                SqlCommand comando = new SqlCommand("SP_SHOW_VEND", conexion);
+                comando.CommandType = CommandType.StoredProcedure;
+                SqlDataAdapter adaptador = new SqlDataAdapter(comando);
+                adaptador.Fill(tabla);
+            }
+            catch (Exception)
+            {
+                tabla = null;
+            }
+            finally
+            {
+                if (conexion.State == ConnectionState.Open) conexion.Close();
+            }
+            return tabla;
+        }
+
+        public DataTable ShowPerName(DVendedor vend)
+        {
+            DataTable tabla = new DataTable();
+            SqlConnection conexion = new SqlConnection(Conexion.cadenaConexion);
+            try
+            {
+                conexion.Open();
+                SqlCommand comando = new SqlCommand("SP_SHOW_VEND_PER_NOMBRE", conexion);
+                comando.CommandType = CommandType.StoredProcedure;
+                comando.Parameters.Add("@NOMBRE", SqlDbType.VarChar, size: 50).Value = vend.Nombre;
+                SqlDataAdapter adaptador = new SqlDataAdapter(comando);
+                adaptador.Fill(tabla);
+            }
+            catch (Exception)
+            {
+
+                tabla = null;
+            }
+            finally
+            {
+                if (conexion.State == ConnectionState.Open) conexion.Close();
+            }
+            return tabla;
+        }
+
+        public int GetMaxId()
+        {
+            int id;
+            SqlConnection conexion = new SqlConnection(Conexion.cadenaConexion);
+            try
+            {
+                conexion.Open();
+                SqlCommand comando = new SqlCommand("GET_MAX_ID", conexion);
+                comando.CommandType = CommandType.StoredProcedure;
+                comando.Parameters.Add("@ID", SqlDbType.Int).Direction = ParameterDirection.Output;
+                comando.ExecuteNonQuery();
+                id = Convert.ToInt32(comando.Parameters["@ID"].Value);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            finally
+            {
+                if (conexion.State == ConnectionState.Open) conexion.Close();
+            }
+            return id;
+        }
+
+    }
+
+   
+}

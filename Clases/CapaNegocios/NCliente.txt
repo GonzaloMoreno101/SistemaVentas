@@ -1,0 +1,70 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+using CapaDatos;
+using System.Data;
+
+namespace CapaNegocios
+{
+    public class NCliente
+    {
+        public static string Insert(int codigo,string nombre,string ape,string calle,int altura,int codBarrio,Int64 nroTel,string email)
+        {
+            Cliente cli = new Cliente();
+            cli.CodCliente = codigo;
+            cli.Nombre = nombre;
+            cli.Apellido = ape;
+            cli.Calle = calle;
+            cli.Altura = altura;
+            cli.CodBarrio = codBarrio;
+            cli.NroTelefono = nroTel;
+            cli.Email = email;
+            return cli.Insert(cli);
+        }
+
+        public static string Update(int codigo, string nombre, string ape, string calle, int altura, int codBarrio, Int64 nroTel, string email)
+        {
+            Cliente cli = new Cliente();
+            cli.CodCliente = codigo;
+            cli.Nombre = nombre;
+            cli.Apellido = ape;
+            cli.Calle = calle;
+            cli.Altura = altura;
+            cli.CodBarrio = codBarrio;
+            cli.NroTelefono = nroTel;
+            cli.Email = email;
+            return cli.Update(cli);
+        }
+
+        public static string Delete(int codigo)
+        {
+            Cliente cli = new Cliente();
+            cli.CodCliente = codigo;
+            
+            return cli.Delete(cli);
+        }
+
+        public static DataTable Show()
+        {
+            Cliente cli = new Cliente();
+
+            return cli.Show();
+        }
+
+        public static DataTable ShowPerName(string nombre)
+        {
+            Cliente cli = new Cliente();
+            cli.Nombre = nombre;
+            return cli.ShowPerName(cli);
+        }
+
+        public static int GetMaxIdentity()
+        {
+            Cliente cli = new Cliente();
+            return cli.GetMaxIdentity();
+        }
+    }
+}

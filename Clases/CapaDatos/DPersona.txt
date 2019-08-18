@@ -1,0 +1,51 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace CapaDatos
+{
+   public abstract class Persona
+    {
+        string _nombre;
+        string _apellido;
+        string _calle;
+        int _altura;
+        int _codBarrio;
+        Int64 _nroTelefono;
+        string _email;
+
+        public string Nombre { get => _nombre; set => _nombre = value; }
+        public string Apellido { get => _apellido; set => _apellido = value; }
+        public string Calle { get => _calle; set => _calle = value; }
+        public int Altura { get => _altura; set => _altura = value; }
+        public int CodBarrio { get => _codBarrio; set => _codBarrio = value; }
+        public long NroTelefono { get => _nroTelefono; set => _nroTelefono = value; }
+        public string Email { get => _email; set => _email = value; }
+
+        public Persona()
+        {
+            Nombre = "";
+            Apellido = "";
+            Calle = "";
+            Altura = 0;
+            CodBarrio = 0;
+            NroTelefono = 0;
+            Email = "";
+        }
+
+        public Persona(string nombre,string apellido,string calle, int altura,int codBarrio,Int64 nroTel,string email)
+        {
+            this.Nombre = nombre;
+            this.Apellido = apellido;
+            this.Calle = calle;
+            this.Altura = altura;
+            this.CodBarrio = CodBarrio;
+            this.NroTelefono = nroTel;
+            this.Email = email;
+        }
+
+        
+    }
+}

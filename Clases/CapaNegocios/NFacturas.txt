@@ -1,0 +1,55 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+using CapaDatos;
+using System.Data;
+namespace CapaNegocios
+{
+    public class NFacturas
+    {
+        public static string GetInsert(int nro,int cod_vend,int codCli,double monto,DateTime fecha)
+        {
+            DFacturas fac = new DFacturas();
+            fac.Cod_cliente = codCli;
+            fac.Cod_vendedor = cod_vend;
+            fac.Fecha = fecha;
+            fac.NroFactura = nro;
+            fac.Monto = monto;
+            return fac.Insert(fac);
+
+        }
+
+        public static DataTable GetShow()
+        {
+            DFacturas fac = new DFacturas();
+            return fac.Show();
+        }
+
+        public static DataTable GetShowPerID(int id)
+        {
+            DFacturas fac = new DFacturas();
+            fac.NroFactura = id;
+            return fac.ShowPerNro(fac);
+        }
+
+        public static DataTable GetShowPerSeller(string nombre)
+        {
+            DFacturas fac = new DFacturas();
+            DVendedor vend = new DVendedor();
+            vend.Nombre = nombre;
+            return fac.ShowPerVen(vend);
+        }
+
+        public static DataTable GetShowPerCli(string nombre)
+        {
+            DFacturas fac = new DFacturas();
+            Cliente cli = new Cliente();
+            cli.Nombre = nombre;
+            return fac.ShowPerCli(cli);
+        }
+        
+    }
+}
